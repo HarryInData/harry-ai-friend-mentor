@@ -1,132 +1,107 @@
 import streamlit as st
 import pyttsx3
+import time
 
 st.set_page_config(
-    page_title="Harry's AI Friend",
+    page_title="JARVIS",
     page_icon="🤖",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="collapsed"
 )
 
-st.markdown("# 🤖 Harry's AI Friend Mentor")
-st.markdown("### Your AI buddy that talks like a friend, acts like a mentor!")
-st.markdown("**🎆 With Voice Support & English + Hindi!**")
+jarvis_css = """
+<style>
+    body, .main { background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%); color: #00d9ff; }
+    .jarvis-header { text-align: center; padding: 30px; background: linear-gradient(90deg, rgba(0,217,255,0.1), rgba(255,0,100,0.1)); border: 2px solid #00d9ff; border-radius: 15px; margin-bottom: 30px; box-shadow: 0 0 30px rgba(0,217,255,0.3); }
+    .jarvis-title { font-size: 48px; color: #00d9ff; text-shadow: 0 0 20px #00d9ff, 0 0 40px #ff0064; letter-spacing: 3px; }
+    .jarvis-subtitle { color: #ff0064; font-size: 18px; letter-spacing: 2px; margin-top: 10px; }
+    .chat-bubble-user { text-align: right; color: #00d9ff; padding: 12px 20px; background: rgba(0,217,255,0.15); border-right: 3px solid #00d9ff; border-radius: 8px; margin: 10px 0; }
+    .chat-bubble-ai { text-align: left; color: #ff0064; padding: 12px 20px; background: rgba(255,0,100,0.15); border-left: 3px solid #ff0064; border-radius: 8px; margin: 10px 0; }
+    .voice-indicator { text-align: center; color: #00d9ff; font-size: 20px; margin: 20px 0; }
+    .stButton > button { background: linear-gradient(90deg, #00d9ff, #ff0064) !important; color: #0a0e27 !important; font-weight: bold !important; border-radius: 8px !important; box-shadow: 0 0 15px rgba(0,217,255,0.5) !important; }
+    .stButton > button:hover { box-shadow: 0 0 25px rgba(0,217,255,0.8) !important; }
+</style>
+"""
 
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-if "mode" not in st.session_state:
-    st.session_state.mode = "Chat with buddy"
-if "use_voice" not in st.session_state:
-    st.session_state.use_voice = False
-if "language" not in st.session_state:
-    st.session_state.language = "English"
+st.markdown(jarvis_css, unsafe_allow_html=True)
 
-# Initialize text-to-speech engine
+if "messages" not in st.session_state: st.session_state.messages = []
+if "use_voice" not in st.session_state: st.session_state.use_voice = False
+if "language" not in st.session_state: st.session_state.language = "English"
+if "mode" not in st.session_state: st.session_state.mode = "Chat with buddy"
+
 engine = pyttsx3.init()
 engine.setProperty('rate', 150)
 engine.setProperty('volume', 0.9)
 
 def speak(text):
-    """Convert text to speech"""
     try:
         engine.say(text)
         engine.runAndWait()
     except:
         pass
 
-with st.sidebar:
-    st.header("⚙️ Settings")
-    
-    st.markdown("### 🌇 Language")
-    st.session_state.language = st.radio(
-        "Prefer to chat in:",
-        ["English", "Hindi", "Mix (English + Hindi)"],
-        index=0
-    )
-    
-    st.markdown("### 📍 Mode")
-    st.session_state.mode = st.radio(
-        "What do you need?",
-        ["Chat with buddy", "Interview prep", "Daily tasks", "Study help"]
-    )
-    
-    st.divider()
-    st.markdown("### 🎉 Voice Features")
-    st.session_state.use_voice = st.checkbox("🔊 Enable Voice Output (AI speaks)", value=False)
-    
-    st.info("🍐 **Voice Input:** Use your laptop/phone mic to talk!")
-    
-    if st.button("🗑️ Clear chat", use_container_width=True):
-        st.session_state.messages = []
-        st.rerun()
-    
-    st.divider()
-    st.markdown("### 📚 Features")
-    st.markdown("- 🎉 Voice Chat (Speak & Listen)")
-    st.markdown("- 💬 Chat in English or Hindi")
-    st.markdown("- 🎤 Interview coaching")
-    st.markdown("- 📋 Daily planning")
-    st.markdown("- 📖 Study help")
+st.markdown("<div class='jarvis-header'><h1 class='jarvis-title'>⚡ JARVIS</h1><p class='jarvis-subtitle'>J.A.R.V.I.S - Harry's AI Response & Voice Interactive System</p></div>", unsafe_allow_html=True)
 
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+col1, col2, col3, col4 = st.columns(4)
+with col1: st.metric("Status", "ONLINE", "🔥")
+with col2: st.metric("Language", st.session_state.language, "Active")
+with col3: st.metric("Voice", "ON" if st.session_state.use_voice else "OFF", "Enabled")
+with col4: st.metric("Messages", len(st.session_state.messages), "Total")
 
-# Chat input
-prompt = st.chat_input("🇣️ Type your message...")
+st.divider()
+
+with st.expander("⚡ JARVIS SETTINGS", expanded=False):
+    col1, col2 = st.columns(2)
+    with col1:
+        st.session_state.language = st.radio("Language:", ["English", "Hindi", "Mix"])
+        st.session_state.mode = st.radio("Mode:", ["Chat with buddy", "Interview prep", "Daily tasks", "Study help"])
+    with col2:
+        st.session_state.use_voice = st.checkbox("🔊 Voice Output", value=False)
+        if st.button("🗑️ RESET", use_container_width=True):
+            st.session_state.messages = []
+            st.rerun()
+
+st.divider()
+
+if st.session_state.use_voice:
+    st.markdown("<div class='voice-indicator'>🔊 VOICE ENABLED - LISTENING...</div>", unsafe_allow_html=True)
+
+for msg in st.session_state.messages:
+    if msg["role"] == "user":
+        st.markdown(f"<div class='chat-bubble-user'>🗣️ {msg['content']}</div>", unsafe_allow_html=True)
+    else:
+        st.markdown(f"<div class='chat-bubble-ai'>🤖 {msg['content']}</div>", unsafe_allow_html=True)
+
+st.divider()
+
+prompt = st.chat_input("🇣️ Enter command...")
 
 if prompt:
     st.session_state.messages.append({"role": "user", "content": prompt})
     
-    with st.chat_message("user"):
-        st.markdown("🗣️ " + prompt)
+    mode = st.session_state.mode
+    lang = st.session_state.language
     
-    with st.chat_message("assistant"):
-        mode = st.session_state.mode
-        lang = st.session_state.language
-        
-        # Generate responses based on mode and language
-        if lang == "Hindi":
-            if mode == "Chat with buddy":
-                response = f"🙋 Yo! Tu ne kaha '{prompt}' - bilkul sahi! Main tere saath hoon, kuch bhi puchna, main madad karunga! Aur bataa, kya chalra! 💪"
-            elif mode == "Interview prep":
-                response = f"🎯 Achha suna! '{prompt}' ke liye yaad rakha: Apna aap ko confident rakhna, apne experience se examples dena, questions puchna, aur company ke baare mein research karna. Tu kar payega! 🎤"
-            elif mode == "Daily tasks":
-                response = f"🏆 Bilkul! Aaj '{prompt}' ko tackle kar lete hain! Mera advice: Chhote kadam mein todh le, sabse mushkil kaam se shuru kar, breaks le, aur celebrate kar apni jeet! 🤟"
-            else:  # Study help
-                response = f"📚 Wow! '{prompt}' sikhna chahte ho? Shabaash! Concept ko break kar, examples se samajh, kisi ko sikha, aur zyada practice kar. Tu brilliant ban jayega! 🌟"
-        
-        elif lang == "Mix (English + Hindi)":
-            if mode == "Chat with buddy":
-                response = f"🙋 Yo! You said '{prompt}' - Bilkul sahi! Main hoon na tere saath! Kuch bhi puchna, I'm here to help! 💪"
-            elif mode == "Interview prep":
-                response = f"🎯 Great question! '{prompt}' ke liye: Confidence rakho, apna experience share karo, research karo company ke baare mein, aur be yourself! You got this! 🎤"
-            elif mode == "Daily tasks":
-                response = f"🏆 Let's tackle '{prompt}' today! Approach: Break it down, start with hardest part, take breaks, aur celebrate wins! Tu kar payega! 🤟"
-            else:  # Study help
-                response = f"📚 Learning about '{prompt}'? Badiya! Break the concept, practice with examples, teach someone, aur keep pushing! Tum brilliant ho sakta ho! 🌟"
-        
-        else:  # English
-            if mode == "Chat with buddy":
-                response = f"Hey! You said '{prompt}' - That's awesome! I'm here for you, buddy! Tell me more, what's on your mind? 💪"
-            elif mode == "Interview prep":
-                response = f"Great question! For '{prompt}': Be confident, share real examples, ask questions, research the company. You've got this! 🎤"
-            elif mode == "Daily tasks":
-                response = f"Let's tackle '{prompt}' today! Break it into chunks, start hard, take breaks, celebrate wins. You can do it! 🏆"
-            else:  # Study help
-                response = f"Learning about '{prompt}'? Awesome! Break the concept, practice, teach it to someone, keep going. You're brilliant! 📚"
-        
-        st.markdown("🤖 " + response)
-        
-        # Speak if voice enabled
-        if st.session_state.use_voice:
-            try:
-                speak(response)
-                st.success("🔊 Voice played!")
-            except:
-                st.warning("⚠️ Voice not available on this device")
+    if lang == "Hindi":
+        if mode == "Chat with buddy": response = f"🙋 Yo! '{prompt}' - bilkul! Main hoon! 💪"
+        elif mode == "Interview prep": response = f"🎯 '{prompt}' ke liye: Confident reh, examples de! 🎤"
+        elif mode == "Daily tasks": response = f"🏆 '{prompt}' - break kar, hard part pehle! 🤟"
+        else: response = f"📚 '{prompt}' - break kar, practice kar! 🌟"
+    elif lang == "Mix":
+        if mode == "Chat with buddy": response = f"🙋 Yo! You said '{prompt}' - bilkul sahi! 💪"
+        elif mode == "Interview prep": response = f"🎯 Great! '{prompt}' ke liye - be confident, examples de! 🎤"
+        elif mode == "Daily tasks": response = f"🏆 Let's tackle '{prompt}' - break down, start hard! 🤟"
+        else: response = f"📚 Learning '{prompt}'? - Break it, practice it! 🌟"
+    else:
+        if mode == "Chat with buddy": response = f"Hey! You said '{prompt}' - awesome! 💪"
+        elif mode == "Interview prep": response = f"Great! For '{prompt}' - be confident, share examples! 🎤"
+        elif mode == "Daily tasks": response = f"Let's tackle '{prompt}' - break down, celebrate wins! 🏆"
+        else: response = f"Learning '{prompt}'? - Break it, practice it! 📚"
     
     st.session_state.messages.append({"role": "assistant", "content": response})
+    if st.session_state.use_voice: speak(response)
+    st.rerun()
 
 st.divider()
-st.markdown("💚 Made with love by Harry | Powered by 🚀 Streamlit + Voice Tech")
-st.markdown("✅ 100% FREE - Hindi + English + Voice!")
+st.markdown("<div style='text-align:center; color:#00d9ff; margin-top:30px;'><p style='font-size:12px;'>⚡ JARVIS ONLINE ⚡</p><p style='font-size:10px; color:#ff0064;'>Made by Harry | Powered by Streamlit</p></div>", unsafe_allow_html=True)
