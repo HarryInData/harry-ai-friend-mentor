@@ -1,7 +1,6 @@
 import streamlit as st
 import pyttsx3
 from groq import Groq
-import os
 
 client = Groq(api_key="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")
 
@@ -34,6 +33,7 @@ jarvis_css = """<style>
 body, .main { background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%); color: #00d9ff; }
 .jarvis-header { text-align: center; padding: 30px; background: linear-gradient(90deg, rgba(0,217,255,0.1), rgba(255,0,100,0.1)); border: 2px solid #00d9ff; border-radius: 15px; box-shadow: 0 0 30px rgba(0,217,255,0.3); }
 .jarvis-title { font-size: 48px; color: #00d9ff; text-shadow: 0 0 20px #00d9ff, 0 0 40px #ff0064; letter-spacing: 3px; }
+.jarvis-subtitle { color: #ff0064; font-size: 18px; letter-spacing: 2px; margin-top: 10px; }
 .chat-bubble-user { text-align: right; color: #00d9ff; padding: 12px 20px; background: rgba(0,217,255,0.15); border-right: 3px solid #00d9ff; border-radius: 8px; margin: 10px 0; }
 .chat-bubble-ai { text-align: left; color: #ff0064; padding: 12px 20px; background: rgba(255,0,100,0.15); border-left: 3px solid #ff0064; border-radius: 8px; margin: 10px 0; }
 .stButton > button { background: linear-gradient(90deg, #00d9ff, #ff0064) !important; color: #0a0e27 !important; font-weight: bold !important; border-radius: 8px !important; }
@@ -46,7 +46,7 @@ if "bot_name" not in st.session_state:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-st.markdown(f"<div class='jarvis-header'><h1 class='jarvis-title'>⚡ {st.session_state.bot_name}</h1><p style='color:#ff0064;'>AI Powered Intelligent Assistant</p></div>", unsafe_allow_html=True)
+st.markdown(f"<div class='jarvis-header'><h1 class='jarvis-title'>⚡ {st.session_state.bot_name}</h1><p class='jarvis-subtitle'>AI Powered Intelligent Assistant</p></div>", unsafe_allow_html=True)
 
 col1, col2, col3, col4 = st.columns(4)
 with col1: st.metric("Status", "ONLINE", "🔥")
@@ -92,4 +92,4 @@ if user_input:
     st.rerun()
 
 st.divider()
-st.markdown(f"<div style='text-align:center; color:#00d9ff;'><p>⚡ {st.session_state.bot_name} - AI POWERED ⚡</p><p style='font-size:10px; color:#ff0064;'>Powered by Groq</p></div>", unsafe_allow_html=True)
+st.markdown(f"<div style='text-align:center; color:#00d9ff; margin-top:30px;'><p style='font-size:12px;'>⚡ {st.session_state.bot_name.upper()} - AI POWERED ⚡</p><p style='font-size:10px; color:#ff0064;'>Powered by Groq</p></div>", unsafe_allow_html=True)
